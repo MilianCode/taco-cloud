@@ -1,11 +1,17 @@
-package com.example.tacos;
+package com.example.tacos.controllers;
 
+import com.example.tacos.data.Ingredient;
+import com.example.tacos.data.Taco;
+import com.example.tacos.data.TacoOrder;
+import com.example.tacos.repo.IngredientRepository;
 import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.example.tacos.Ingredient.Type;
+import com.example.tacos.data.Ingredient.Type;
 import org.springframework.validation.Errors;
 
 import javax.validation.Valid;
@@ -18,6 +24,23 @@ import java.util.List;
 @RequestMapping("/design")
 @SessionAttributes("tacoOrder")
 public class DesighTacoController {
+
+    private final IngredientRepository ingredientRepo;
+
+    @Autowired
+    public DesighTacoController(IngredientRepository ingredientRepo) {
+        this.ingredientRepo = ingredientRepo;
+    }
+
+    @ModelAttribute
+    public void addIngredientsToModel(Model model) {
+        Iterable<Ingredient> ingredients = ingredientRepo.findAll();
+        Type[] types = Ingredient.Type.values();
+        for (Type type : types) {
+            model.addAttribute(type.toString().toLowerCase(),
+                    filterByType((List<Ingredient>) ingredients, type));
+        }
+    }
 
     @ModelAttribute
     public void addIngredientsToMode(Model model){
